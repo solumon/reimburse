@@ -1,8 +1,27 @@
 import type { Attachment, ClockMetadata } from './attachment.js';
 
 export const REIMBURSEMENT_STATUSES = ['wait', 'done'] as const;
+export const REIMBURSEMENT_AUDIT_STATUSES = ['通过', '不通过'] as const;
 
 export type ReimbursementStatus = (typeof REIMBURSEMENT_STATUSES)[number];
+export type ReimbursementAuditStatus = (typeof REIMBURSEMENT_AUDIT_STATUSES)[number];
+
+export interface ReimbursementAuditTrip {
+  shiftDate: string;
+  clockInTime: string | null;
+  clockOutTime: string | null;
+  taxiTime: string | null;
+  amount: number;
+}
+
+export interface ReimbursementAudit {
+  name: string;
+  auditedAt: string;
+  totalAmount: number;
+  trips: ReimbursementAuditTrip[];
+  status: ReimbursementAuditStatus;
+  rejectionReasons: string[];
+}
 
 export interface ReimbursementSummary {
   id: string;
@@ -13,6 +32,7 @@ export interface ReimbursementSummary {
   createdAt: number;
   clockCount: number;
   voucherCount: number;
+  hasAudit: boolean;
 }
 
 export interface ReimbursementDetail extends ReimbursementSummary {

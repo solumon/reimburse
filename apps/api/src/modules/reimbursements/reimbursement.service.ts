@@ -1,9 +1,14 @@
 import { randomUUID } from 'node:crypto';
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 
 import type {
   CreateReimbursementResponse,
+  ReimbursementAudit,
   ReimbursementDetail,
   ReimbursementQuery,
   ReimbursementStatus,
@@ -12,6 +17,7 @@ import type {
 
 import { FileStorageService } from '../attachments/file-storage.service.js';
 import type { CreateReimbursementDto } from './dto/create-reimbursement.dto.js';
+import { mapReimbursementAudit } from './reimbursement-audit.mapper.js';
 import { mapDetail, mapSummary } from './reimbursement.mapper.js';
 import { ReimbursementRepository } from './reimbursement.repository.js';
 
@@ -58,14 +64,39 @@ export class ReimbursementService {
   }
 
   list(query: ReimbursementQuery): ReimbursementSummary[] {
-    return this.repository.list(query).map(mapSummary);
+    return this.repository.list(query).map((row) => (
+      mapSummary(row, this.fileStorageService.hasAudit(row.id))
+    ));
   }
 
   getDetail(id: string): ReimbursementDetail {
     this.ensureId(id);
     const summary = this.repository.findSummary(id);
     if (!summary) throw new NotFoundException('报销记录不存在');
-    return mapDetail(summary, this.repository.findAttachments(id));
+    return mapDetail(
+      summary,
+      this.repository.findAttachments(id),
+      this.fileStorageService.hasAudit(id),
+    );
+  }
+
+  getAudit(id: string): ReimbursementAudit {
+    this.ensureId(id);
+    if (!this.repository.findSummary(id)) {
+      throw new NotFoundException('报销记录不存在');
+    }
+    const content = this.fileStorageService.readAudit(id);
+    if (content === null) throw new NotFoundException('预审结果不存在');
+
+    let value: unknown;
+    try {
+      value = JSON.parse(content) as unknown;
+    } catch {
+      throw new UnprocessableEntityException('预审结果格式无效');
+    }
+    const audit = mapReimbursementAudit(value);
+    if (!audit) throw new UnprocessableEntityException('预审结果格式无效');
+    return audit;
   }
 
   updateStatus(id: string, status: ReimbursementStatus): ReimbursementSummary {
@@ -88,7 +119,7 @@ export class ReimbursementService {
   private getSummary(id: string): ReimbursementSummary {
     const row = this.repository.findSummary(id);
     if (!row) throw new NotFoundException('报销记录不存在');
-    return mapSummary(row);
+    return mapSummary(row, this.fileStorageService.hasAudit(id));
   }
 
   private ensureId(id: string): void {

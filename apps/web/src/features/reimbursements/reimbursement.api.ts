@@ -1,5 +1,6 @@
 import type {
   CreateReimbursementResponse,
+  ReimbursementAudit,
   ReimbursementDetail,
   ReimbursementQuery,
   ReimbursementStatus,
@@ -9,6 +10,7 @@ import type {
 import { request } from '@/shared/api/http-client';
 
 export const reimbursementApi = {
+  audit: (id: string) => request<ReimbursementAudit>(`/api/v1/reimbursements/${id}/audit`),
   create: (body: FormData) => request<CreateReimbursementResponse>('/api/v1/reimbursements', {
     body,
     method: 'POST',

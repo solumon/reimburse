@@ -27,10 +27,12 @@ import {
   ApiTags,
   ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 
 import type {
   CreateReimbursementResponse,
+  ReimbursementAudit,
   ReimbursementDetail,
   ReimbursementSummary,
 } from '@reimburse/shared';
@@ -41,6 +43,7 @@ import { UploadedFilesCleanupInterceptor } from '../../common/interceptors/uploa
 import {
   ApiErrorResponseDto,
   CreateReimbursementResponseDto,
+  ReimbursementAuditResponseDto,
   ReimbursementDetailResponseDto,
   ReimbursementSummaryResponseDto,
 } from '../../common/swagger/api-response.dto.js';
@@ -111,6 +114,18 @@ export class ReimbursementController {
   @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
   list(@Query() query: QueryReimbursementsDto): ReimbursementSummary[] {
     return this.reimbursementService.list(query);
+  }
+
+  @Get(':id/audit')
+  @ApiCookieAuth('admin-session')
+  @ApiOperation({ summary: '查询报销预审结果' })
+  @ApiParam({ example: '0123456789abcdef0123456789abcdef', name: 'id' })
+  @ApiOkResponse({ type: ReimbursementAuditResponseDto })
+  @ApiUnauthorizedResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiUnprocessableEntityResponse({ type: ApiErrorResponseDto })
+  getAudit(@Param('id') id: string): ReimbursementAudit {
+    return this.reimbursementService.getAudit(id);
   }
 
   @Get(':id')

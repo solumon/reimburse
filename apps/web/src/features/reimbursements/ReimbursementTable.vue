@@ -3,8 +3,13 @@ import type { ReimbursementSummary } from '@reimburse/shared';
 
 import { formatDate, formatMoney } from '@/shared/utils/format';
 
-defineProps<{ loading: boolean; records: ReimbursementSummary[] }>();
+defineProps<{
+  auditLoadingId: string | null;
+  loading: boolean;
+  records: ReimbursementSummary[];
+}>();
 defineEmits<{
+  audit: [record: ReimbursementSummary];
   remove: [record: ReimbursementSummary];
   toggle: [record: ReimbursementSummary];
   view: [record: ReimbursementSummary];
@@ -27,6 +32,13 @@ defineEmits<{
           <td><span class="pill" :class="record.status">{{ record.status === 'done' ? '已报销' : '待报销' }}</span></td>
           <td><div class="actions">
             <button class="btn btn-ghost btn-sm" type="button" @click="$emit('view', record)">查看</button>
+            <button
+              class="btn btn-ghost btn-sm"
+              type="button"
+              :disabled="!record.hasAudit || auditLoadingId === record.id"
+              :title="record.hasAudit ? '查看预审详情' : '暂无预审结果'"
+              @click="$emit('audit', record)"
+            >{{ auditLoadingId === record.id ? '加载中…' : '预审详情' }}</button>
             <button class="btn btn-ghost btn-sm" type="button" @click="$emit('toggle', record)">{{ record.status === 'done' ? '撤销' : '标记已报' }}</button>
             <button class="btn btn-danger btn-sm" type="button" @click="$emit('remove', record)">删除</button>
           </div></td>
