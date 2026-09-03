@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# Runtime files
+*.log
+*.pid
+
+# Dependencies and build outputs
+node_modules/
+dist/
+coverage/
+backups/
+release/
+.vite/
+playwright-report/
+test-results/
+*.tsbuildinfo
+
+# Local configuration
+.env
+.env.*
+!.env.example
+
+# Runtime business data is backed up and deployed independently
+files/
+sqlite/

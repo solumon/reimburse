@@ -1,0 +1,26 @@
+{
+  "name": "reimburse",
+  "version": "2.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.15.0",
+  "engines": {
+    "node": ">=24.15.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "bcryptjs": "^3.0.2",
+    "eslint": "^10.0.0",
+    "eslint-plugin-vue": "^10.0.0",
+    "globals": "^17.0.0",
+    "typescript-eslint": "^8.0.0"
+  },
+  "scripts": {
+    "build": "pnpm --filter @reimburse/shared build && pnpm --filter @reimburse/web build && pnpm --filter @reimburse/api build",
+    "dev": "pnpm --filter @reimburse/shared build && pnpm --parallel --filter @reimburse/api --filter @reimburse/web dev",
+    "lint": "eslint apps packages scripts --max-warnings=0",
+    "test": "pnpm --filter @reimburse/shared build && pnpm -r --if-present test",
+    "test:e2e:web": "pnpm build && pnpm --filter @reimburse/web test:e2e",
+    "typecheck": "pnpm --filter @reimburse/shared build && pnpm -r --if-present typecheck",
+    "start": "pnpm --filter @reimburse/api start:prod"
+  }
+}

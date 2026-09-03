@@ -1,0 +1,24 @@
+[Unit]
+Description=Reimburse NestJS Service
+After=network.target
+
+[Service]
+Type=simple
+User=reimburse
+Group=reimburse
+WorkingDirectory=/root/fanzongling/reimburse/current
+EnvironmentFile=/root/fanzongling/reimburse/config/reimburse.env
+ExecStart=/usr/bin/node apps/api/dist/main.js
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+KillSignal=SIGTERM
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/root/fanzongling/reimburse/shared/sqlite /root/fanzongling/reimburse/shared/files /root/fanzongling/reimburse/backups
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
