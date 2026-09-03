@@ -89,9 +89,21 @@ export class ReimbursementAuditTripResponseDto {
 
   @ApiProperty({ example: 51 })
   amount!: number;
+
+  @ApiProperty({ enum: REIMBURSEMENT_AUDIT_STATUSES, example: '通过' })
+  status!: (typeof REIMBURSEMENT_AUDIT_STATUSES)[number];
+
+  @ApiProperty({ example: '26117000001167600148' })
+  invoiceNumber!: string;
+
+  @ApiProperty({ example: '2026-08-03' })
+  invoiceDate!: string;
 }
 
 export class ReimbursementAuditResponseDto {
+  @ApiProperty({ example: '0123456789abcdef0123456789abcdef' })
+  batchId!: string;
+
   @ApiProperty({ example: '张三' })
   name!: string;
 
@@ -99,7 +111,10 @@ export class ReimbursementAuditResponseDto {
   auditedAt!: string;
 
   @ApiProperty({ example: 109.9 })
-  totalAmount!: number;
+  invoiceAmount!: number;
+
+  @ApiProperty({ example: 109.9 })
+  reimbursementAmount!: number;
 
   @ApiProperty({ isArray: true, type: () => ReimbursementAuditTripResponseDto })
   trips!: ReimbursementAuditTripResponseDto[];

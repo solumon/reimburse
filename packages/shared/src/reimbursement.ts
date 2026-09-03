@@ -12,12 +12,17 @@ export interface ReimbursementAuditTrip {
   clockOutTime: string | null;
   taxiTime: string | null;
   amount: number;
+  status: ReimbursementAuditStatus;
+  invoiceNumber: string;
+  invoiceDate: string;
 }
 
 export interface ReimbursementAudit {
+  batchId: string;
   name: string;
   auditedAt: string;
-  totalAmount: number;
+  invoiceAmount: number;
+  reimbursementAmount: number;
   trips: ReimbursementAuditTrip[];
   status: ReimbursementAuditStatus;
   rejectionReasons: string[];

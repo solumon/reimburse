@@ -19,13 +19,15 @@ defineEmits<{ close: [] }>();
         <div class="summary-item"><span>审核状态</span><strong class="audit-status" :class="audit.status === '通过' ? 'passed' : 'rejected'">{{ audit.status }}</strong></div>
         <div class="summary-item"><span>姓名</span><strong>{{ audit.name }}</strong></div>
         <div class="summary-item"><span>审核时间</span><strong>{{ audit.auditedAt }}</strong></div>
-        <div class="summary-item"><span>报销总金额</span><strong>{{ formatMoney(audit.totalAmount) }}</strong></div>
+        <div class="summary-item"><span>批次 ID</span><strong>{{ audit.batchId }}</strong></div>
+        <div class="summary-item"><span>发票金额</span><strong>{{ formatMoney(audit.invoiceAmount) }}</strong></div>
+        <div class="summary-item"><span>报销金额</span><strong>{{ formatMoney(audit.reimbursementAmount) }}</strong></div>
       </div>
 
       <h3>行程明细</h3>
       <div v-if="audit.trips.length" class="table-wrap">
         <table class="table">
-          <thead><tr><th>班次日期</th><th>上班打卡</th><th>下班打卡</th><th>打车时间</th><th>金额</th></tr></thead>
+          <thead><tr><th>班次日期</th><th>上班打卡</th><th>下班打卡</th><th>打车时间</th><th>金额</th><th>行程审核</th><th>发票号码</th><th>开票日期</th></tr></thead>
           <tbody>
             <tr v-for="(trip, index) in audit.trips" :key="`${trip.shiftDate}-${index}`">
               <td>{{ trip.shiftDate || '--' }}</td>
@@ -33,6 +35,9 @@ defineEmits<{ close: [] }>();
               <td>{{ trip.clockOutTime || '--' }}</td>
               <td>{{ trip.taxiTime || '--' }}</td>
               <td>{{ formatMoney(trip.amount) }}</td>
+              <td>{{ trip.status }}</td>
+              <td>{{ trip.invoiceNumber || '--' }}</td>
+              <td>{{ trip.invoiceDate || '--' }}</td>
             </tr>
           </tbody>
         </table>
@@ -64,7 +69,7 @@ h3 { margin: 20px 0 10px; font-size: 14px; }
   &.passed { background: #d1fae5; color: #059669; }
   &.rejected { background: #fee2e2; color: #dc2626; }
 }
-.table { min-width: 620px; }
+.table { min-width: 900px; }
 .audit-reasons { margin-top: 18px; padding: 14px 16px; border: 1px solid #fecaca; border-radius: 8px; background: #fef2f2;
   h3 { margin-top: 0; color: #b91c1c; }
   ol { padding-left: 20px; color: #991b1b; }

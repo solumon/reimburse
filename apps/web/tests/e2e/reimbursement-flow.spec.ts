@@ -50,16 +50,21 @@ test('提交报销后可由管理员查看和处理', async ({ page }, testInfo)
   const runtimeRoot = fs.readFileSync(runtimeMarker, 'utf8');
   fs.writeFileSync(`${runtimeRoot}/files/${record!.id}/audit.json`, JSON.stringify({
     不通过原因: ['行程对应的下班打卡时间为空，这是一段用于验证长文本展示的说明'],
+    发票金额: 58.5,
     姓名: name,
     审核时间: '2026-09-03 12:14:26',
     审核状态: '不通过',
-    报销总金额: 58.5,
+    批次ID: record!.id,
+    报销金额: 58.5,
     行程列表: [{
       上班打卡时间: '09:00',
       下班打卡时间: null,
       打车时间: '23:30',
       班次日期: '2026-09-01',
       金额: 58.5,
+      审核状态: '不通过',
+      发票号码: '26117000001167600148',
+      开票日期: '2026-08-03',
     }],
   }));
 
