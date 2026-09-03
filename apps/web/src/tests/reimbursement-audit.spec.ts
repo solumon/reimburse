@@ -36,15 +36,20 @@ describe('预审详情', () => {
   it('结构化展示不通过结果、空时间和原因', () => {
     const audit: ReimbursementAudit = {
       auditedAt: '2026-09-03 12:14:26',
+      batchId: '0123456789abcdef0123456789abcdef',
+      invoiceAmount: 58.5,
       name: '测试用户',
       rejectionReasons: ['这是一个用于验证长文本换行展示的不通过原因'],
       status: '不通过',
-      totalAmount: 58.5,
+      reimbursementAmount: 58.5,
       trips: [{
         amount: 58.5,
         clockInTime: '09:00',
         clockOutTime: null,
+        invoiceDate: '2026-08-03',
+        invoiceNumber: '26117000001167600148',
         shiftDate: '2026-09-01',
+        status: '不通过',
         taxiTime: '23:30',
       }],
     };
@@ -61,10 +66,12 @@ describe('预审详情', () => {
       props: {
         audit: {
           auditedAt: '2026-09-03 12:14:26',
+          batchId: '0123456789abcdef0123456789abcdef',
+          invoiceAmount: 58.5,
           name: '测试用户',
           rejectionReasons: [],
           status: '通过',
-          totalAmount: 58.5,
+          reimbursementAmount: 58.5,
           trips: [],
         },
       },

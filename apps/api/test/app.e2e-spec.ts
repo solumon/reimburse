@@ -71,10 +71,12 @@ describe('报销 API (e2e)', () => {
     const auditPath = path.join(runtimeDirectory, 'files', id, 'audit.json');
     fs.writeFileSync(auditPath, JSON.stringify({
       不通过原因: ['行程对应的下班打卡时间为空'],
+      发票金额: 88.5,
       姓名: '测试用户',
       审核时间: '2026-09-03 12:14:26',
       审核状态: '不通过',
-      报销总金额: 88.5,
+      批次ID: id,
+      报销金额: 88.5,
       行程列表: [
         {
           上班打卡时间: '09:00',
@@ -82,6 +84,9 @@ describe('报销 API (e2e)', () => {
           打车时间: '23:30',
           班次日期: '2026-09-01',
           金额: 88.5,
+          审核状态: '不通过',
+          发票号码: '26117000001167600148',
+          开票日期: '2026-08-03',
         },
       ],
     }));
@@ -93,15 +98,20 @@ describe('报销 API (e2e)', () => {
       .set('Cookie', cookie).expect(200).expect(({ body }) => {
         expect(body).toEqual({
           auditedAt: '2026-09-03 12:14:26',
+          batchId: id,
+          invoiceAmount: 88.5,
           name: '测试用户',
           rejectionReasons: ['行程对应的下班打卡时间为空'],
           status: '不通过',
-          totalAmount: 88.5,
+          reimbursementAmount: 88.5,
           trips: [{
             amount: 88.5,
             clockInTime: '09:00',
             clockOutTime: null,
+            invoiceDate: '2026-08-03',
+            invoiceNumber: '26117000001167600148',
             shiftDate: '2026-09-01',
+            status: '不通过',
             taxiTime: '23:30',
           }],
         });

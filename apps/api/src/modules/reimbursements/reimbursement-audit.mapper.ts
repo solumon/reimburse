@@ -27,7 +27,10 @@ function mapTrip(value: unknown): ReimbursementAuditTrip | null {
     || !isNullableString(value['下班打卡时间'])
     || !isNullableString(value['打车时间'])
     || typeof value['金额'] !== 'number'
-    || !Number.isFinite(value['金额'])) {
+    || !Number.isFinite(value['金额'])
+    || !isAuditStatus(value['审核状态'])
+    || typeof value['发票号码'] !== 'string'
+    || typeof value['开票日期'] !== 'string') {
     return null;
   }
 
@@ -35,17 +38,23 @@ function mapTrip(value: unknown): ReimbursementAuditTrip | null {
     amount: value['金额'],
     clockInTime: value['上班打卡时间'],
     clockOutTime: value['下班打卡时间'],
+    invoiceDate: value['开票日期'],
+    invoiceNumber: value['发票号码'],
     shiftDate: value['班次日期'],
+    status: value['审核状态'],
     taxiTime: value['打车时间'],
   };
 }
 
 export function mapReimbursementAudit(value: unknown): ReimbursementAudit | null {
   if (!isJsonObject(value)
+    || typeof value['批次ID'] !== 'string'
     || typeof value['姓名'] !== 'string'
     || typeof value['审核时间'] !== 'string'
-    || typeof value['报销总金额'] !== 'number'
-    || !Number.isFinite(value['报销总金额'])
+    || typeof value['发票金额'] !== 'number'
+    || !Number.isFinite(value['发票金额'])
+    || typeof value['报销金额'] !== 'number'
+    || !Number.isFinite(value['报销金额'])
     || !Array.isArray(value['行程列表'])
     || !isAuditStatus(value['审核状态'])
     || !Array.isArray(value['不通过原因'])
@@ -58,10 +67,12 @@ export function mapReimbursementAudit(value: unknown): ReimbursementAudit | null
 
   return {
     auditedAt: value['审核时间'],
+    batchId: value['批次ID'],
+    invoiceAmount: value['发票金额'],
     name: value['姓名'],
     rejectionReasons: value['不通过原因'],
     status: value['审核状态'],
-    totalAmount: value['报销总金额'],
+    reimbursementAmount: value['报销金额'],
     trips: trips as ReimbursementAuditTrip[],
   };
 }
