@@ -8,6 +8,8 @@ import { hash } from 'bcryptjs';
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const runtimeRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'reimburse-playwright-'));
+const runtimeMarker = path.join(os.tmpdir(), 'reimburse-playwright-18100-runtime-root.txt');
+fs.writeFileSync(runtimeMarker, runtimeRoot);
 const adminPassword = 'playwright-admin-password';
 const child = spawn(process.execPath, ['apps/api/dist/main.js'], {
   cwd: workspaceRoot,
@@ -34,5 +36,6 @@ process.on('SIGTERM', () => stop('SIGTERM'));
 
 child.on('exit', (code) => {
   fs.rmSync(runtimeRoot, { force: true, recursive: true });
+  fs.rmSync(runtimeMarker, { force: true });
   process.exit(code ?? 0);
 });

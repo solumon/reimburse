@@ -93,6 +93,22 @@ export class FileStorageService {
     return this.resolveRelative(relativePath);
   }
 
+  hasAudit(recordId: string): boolean {
+    return fs.existsSync(this.resolveRelative(path.posix.join(recordId, 'audit.json')));
+  }
+
+  readAudit(recordId: string): string | null {
+    try {
+      return fs.readFileSync(
+        this.resolveRelative(path.posix.join(recordId, 'audit.json')),
+        'utf8',
+      );
+    } catch (error) {
+      if (isNodeError(error) && error.code === 'ENOENT') return null;
+      throw error;
+    }
+  }
+
   private persistGroup(
     recordId: string,
     kind: AttachmentKind,
@@ -130,4 +146,8 @@ export class FileStorageService {
     }
     return target;
   }
+}
+
+function isNodeError(error: unknown): error is NodeJS.ErrnoException {
+  return typeof error === 'object' && error !== null && 'code' in error;
 }

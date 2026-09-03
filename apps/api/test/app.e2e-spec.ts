@@ -61,6 +61,59 @@ describe('报销 API (e2e)', () => {
     const list = await request(app.getHttpServer()).get('/api/v1/reimbursements').set('Cookie', cookie).expect(200);
     expect(list.body).toHaveLength(1);
     const id = created.body.record.id as string;
+    expect(list.body[0].hasAudit).toBe(false);
+    await request(app.getHttpServer()).get(`/api/v1/reimbursements/${id}/audit`).expect(401);
+    await request(app.getHttpServer()).get(`/api/v1/reimbursements/${id}/audit`)
+      .set('Cookie', cookie).expect(404).expect(({ body }) => {
+        expect(body.message).toBe('预审结果不存在');
+      });
+
+    const auditPath = path.join(runtimeDirectory, 'files', id, 'audit.json');
+    fs.writeFileSync(auditPath, JSON.stringify({
+      不通过原因: ['行程对应的下班打卡时间为空'],
+      姓名: '测试用户',
+      审核时间: '2026-09-03 12:14:26',
+      审核状态: '不通过',
+      报销总金额: 88.5,
+      行程列表: [
+        {
+          上班打卡时间: '09:00',
+          下班打卡时间: null,
+          打车时间: '23:30',
+          班次日期: '2026-09-01',
+          金额: 88.5,
+        },
+      ],
+    }));
+
+    const listWithAudit = await request(app.getHttpServer()).get('/api/v1/reimbursements')
+      .set('Cookie', cookie).expect(200);
+    expect(listWithAudit.body[0].hasAudit).toBe(true);
+    await request(app.getHttpServer()).get(`/api/v1/reimbursements/${id}/audit`)
+      .set('Cookie', cookie).expect(200).expect(({ body }) => {
+        expect(body).toEqual({
+          auditedAt: '2026-09-03 12:14:26',
+          name: '测试用户',
+          rejectionReasons: ['行程对应的下班打卡时间为空'],
+          status: '不通过',
+          totalAmount: 88.5,
+          trips: [{
+            amount: 88.5,
+            clockInTime: '09:00',
+            clockOutTime: null,
+            shiftDate: '2026-09-01',
+            taxiTime: '23:30',
+          }],
+        });
+      });
+
+    fs.writeFileSync(auditPath, '{invalid-json');
+    await request(app.getHttpServer()).get(`/api/v1/reimbursements/${id}/audit`)
+      .set('Cookie', cookie).expect(422);
+    fs.writeFileSync(auditPath, JSON.stringify({ 姓名: '测试用户' }));
+    await request(app.getHttpServer()).get(`/api/v1/reimbursements/${id}/audit`)
+      .set('Cookie', cookie).expect(422);
+
     const detail = await request(app.getHttpServer()).get(`/api/v1/reimbursements/${id}`).set('Cookie', cookie).expect(200);
     expect(detail.body.attachments).toHaveLength(2);
     expect(JSON.stringify(detail.body)).not.toContain('base64');
@@ -76,6 +129,7 @@ describe('报销 API (e2e)', () => {
     const response = await request(app.getHttpServer()).get('/api/docs/openapi.json').expect(200);
     expect(response.body.openapi).toBe('3.0.0');
     expect(response.body.paths['/api/v1/health']).toBeDefined();
+    expect(response.body.paths['/api/v1/reimbursements/{id}/audit']).toBeDefined();
     expect(response.body.paths['/api/v1/reimbursements/{id}/status']).toBeDefined();
     expect(response.body.components.securitySchemes['admin-session']).toMatchObject({
       in: 'cookie',

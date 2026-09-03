@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   ATTACHMENT_KINDS,
   ATTACHMENT_TYPES,
+  REIMBURSEMENT_AUDIT_STATUSES,
   REIMBURSEMENT_STATUSES,
 } from '@reimburse/shared';
 
@@ -68,6 +69,46 @@ export class ReimbursementSummaryResponseDto {
 
   @ApiProperty({ example: 1 })
   voucherCount!: number;
+
+  @ApiProperty({ example: true })
+  hasAudit!: boolean;
+}
+
+export class ReimbursementAuditTripResponseDto {
+  @ApiProperty({ example: '2026-08-25' })
+  shiftDate!: string;
+
+  @ApiProperty({ example: '09:28', nullable: true })
+  clockInTime!: string | null;
+
+  @ApiProperty({ example: '次日 01:00', nullable: true })
+  clockOutTime!: string | null;
+
+  @ApiProperty({ example: '01:00', nullable: true })
+  taxiTime!: string | null;
+
+  @ApiProperty({ example: 51 })
+  amount!: number;
+}
+
+export class ReimbursementAuditResponseDto {
+  @ApiProperty({ example: '张三' })
+  name!: string;
+
+  @ApiProperty({ example: '2026-09-03 12:14:26' })
+  auditedAt!: string;
+
+  @ApiProperty({ example: 109.9 })
+  totalAmount!: number;
+
+  @ApiProperty({ isArray: true, type: () => ReimbursementAuditTripResponseDto })
+  trips!: ReimbursementAuditTripResponseDto[];
+
+  @ApiProperty({ enum: REIMBURSEMENT_AUDIT_STATUSES, example: '不通过' })
+  status!: (typeof REIMBURSEMENT_AUDIT_STATUSES)[number];
+
+  @ApiProperty({ example: ['行程对应的下班打卡时间为空'], isArray: true, type: String })
+  rejectionReasons!: string[];
 }
 
 export class AttachmentResponseDto {
